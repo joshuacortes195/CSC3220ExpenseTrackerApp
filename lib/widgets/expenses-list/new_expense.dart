@@ -119,22 +119,45 @@ class _NewExpensesState extends State<NewExpense> {
   }
 
   // new widget turns title field into method for reusability
+  // changed to text form field so we can use validators
+  // these are ultimately precautionary things so no one can enter nothing in the title field or 2 letters that dont even make a legit title
+  // had to add autovalidate to each field seperately or it would trigger all fields without typing in a specific field
   Widget _buildTitleField() {
-    return TextField(
+    return TextFormField(
       controller: _titleController,
       decoration: const InputDecoration(label: Text('Title')),
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: (value) {
+        if (value == null || value.trim().length < 2) {
+          return 'Title needs to be at least 2 characters.';
+        }
+        return null;
+      },
     );
   }
 
   // new widget turns amount field into a method for reusability
+  // changed keyboard type so decimals can be entered
+  // changed to text form field so we can use validators
   Widget _buildAmountField() {
-    return TextField(
+    return TextFormField(
       controller: _amountController,
-      keyboardType: TextInputType.number,
+      keyboardType: TextInputType.numberWithOptions(decimal: true),
       decoration: const InputDecoration(
         prefixText: '\$ ',
-        label: Text('Amount')
+        label: Text('Amount'),
       ),
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: (value) {
+        final amount = double.tryParse(value ?? '');
+        if (amount == null) {
+          return 'Enter a valid number.';
+        }
+        if (amount <= 0) {
+          return 'Amount must be greater than 0.';
+        }
+        return null;
+      },
     );
   }
 
@@ -195,7 +218,6 @@ class _NewExpensesState extends State<NewExpense> {
             // stacks everything top to bottom
             child: Form(
               key: _formKey,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
               child: Column(
                 children: [
                   if (width >= 600 )
