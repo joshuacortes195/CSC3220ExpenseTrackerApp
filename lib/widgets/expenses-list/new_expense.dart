@@ -28,6 +28,8 @@ class _NewExpensesState extends State<NewExpense> {
   DateTime? _selectedDate;
   // the category the user picked, it it leisure by default
   Category _selectedCategory = Category.leisure;
+  // new form wrapper
+  final _formKey = GlobalKey<FormState>();
 
   // opens the calendar
   void _presentDatePicker() async {
@@ -191,81 +193,85 @@ class _NewExpensesState extends State<NewExpense> {
           child: Padding(
             padding: EdgeInsets.fromLTRB(16, 16, 16, keyboardSpace + 16),
             // stacks everything top to bottom
-            child: Column(
-              children: [
-                if (width >= 600 )
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: _buildTitleField(),
-                      ),
+            child: Form(
+              key: _formKey,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              child: Column(
+                children: [
+                  if (width >= 600 )
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: _buildTitleField(),
+                        ),
+                        const SizedBox(width: 24),
+                        Expanded(
+                          child: _buildAmountField(),
+                        ),
+                      ],
+                    )
+                  else  
+                  _buildTitleField(),
+                  if (width >= 600)
+                    Row(children: [
+                      _buildCategoryDropdown(),
                       const SizedBox(width: 24),
                       Expanded(
-                        child: _buildAmountField(),
-                      ),
-                    ],
-                  )
-                else  
-                _buildTitleField(),
-                if (width >= 600)
-                  Row(children: [
-                    _buildCategoryDropdown(),
-                    const SizedBox(width: 24),
-                    Expanded(
-                        child: _buildDateRow(),
-                    )
-                  ],
-                )
-                else
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildAmountField(),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildDateRow(),
+                          child: _buildDateRow(),
                       )
                     ],
-                  ),
-                  const SizedBox(height: 16),
-                  if(width >= 600)
-                    Row(children: [
-                      const Spacer(),
-                      // cancel button
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text('Cancel'),),
-                      // save button
-                      ElevatedButton(
-                        // checks and saves the expense
-                        onPressed: _submitExpenseData,
-                        child: const Text('Save Expense'),
-                      ),
-                    ])
-                  else
-                    // category dropdown and the buttons
-                    Row(children: [  
-                      _buildCategoryDropdown(),
-                      const Spacer(),
-                      // cancel button
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text('Cancel'),),
-                      // save button
-                      ElevatedButton(
-                        // checks and saves the expense
-                        onPressed: _submitExpenseData,
-                        child: const Text('Save Expense'),
-                      ),
-                    ],
                   )
-              ],
+                  else
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildAmountField(),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _buildDateRow(),
+                        )
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    if(width >= 600)
+                      Row(children: [
+                        const Spacer(),
+                        // cancel button
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text('Cancel'),),
+                        // save button
+                        ElevatedButton(
+                          // checks and saves the expense
+                          onPressed: _submitExpenseData,
+                          child: const Text('Save Expense'),
+                        ),
+                      ])
+                    else
+                      // category dropdown and the buttons
+                      Row(children: [  
+                        _buildCategoryDropdown(),
+                        const Spacer(),
+                        // cancel button
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text('Cancel'),),
+                        // save button
+                        ElevatedButton(
+                          // checks and saves the expense
+                          onPressed: _submitExpenseData,
+                          child: const Text('Save Expense'),
+                        ),
+                      ],
+                    )
+                ],
+              ),
             ),
           ),
         ),
