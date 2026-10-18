@@ -116,6 +116,68 @@ class _NewExpensesState extends State<NewExpense> {
     super.dispose();
   }
 
+  // new widget turns title field into method for reusability
+  Widget _buildTitleField() {
+    return TextField(
+      controller: _titleController,
+      decoration: const InputDecoration(label: Text('Title')),
+    );
+  }
+
+  // new widget turns amount field into a method for reusability
+  Widget _buildAmountField() {
+    return TextField(
+      controller: _amountController,
+      keyboardType: TextInputType.number,
+      decoration: const InputDecoration(
+        prefixText: '\$ ',
+        label: Text('Amount')
+      ),
+    );
+  }
+
+  // new widget turns category dropdown into a method for reusability
+  Widget _buildCategoryDropdown() {
+    return DropdownButton(
+      value: _selectedCategory, 
+      items: Category.values.
+        map(
+          (category) => DropdownMenuItem(
+            value: category,
+            child: Text(
+              category.name.toUpperCase(),
+            ),
+          ),
+        ).toList(),
+      onChanged: (value) {
+        if (value == null) {
+          return;
+        }
+        setState(() {
+          _selectedCategory = value;
+        },
+      );
+    },
+  );
+  }
+ 
+  // new widget turns date text and calendar button into method for reusability
+  Widget _buildDateRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(_selectedDate == null? 'No Date Selected' : formatter.format(_selectedDate!)),
+        IconButton(
+          onPressed: _presentDatePicker,
+          icon: const Icon(
+            Icons.calendar_month,
+          )
+        ),
+      ],
+    );
+  }
+
   // what the form looks like
   @override
   Widget build(BuildContext context) {
@@ -136,78 +198,22 @@ class _NewExpensesState extends State<NewExpense> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: TextField(
-                          controller: _titleController,
-                          decoration: const InputDecoration(
-                            label: Text('Title')
-                          ),
-                        ),
+                        child: _buildTitleField(),
                       ),
                       const SizedBox(width: 24),
                       Expanded(
-                        child: TextField(
-                          controller: _amountController,
-                          // number keyboard
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            // dollar sign in front
-                            prefixText: '\$ ',
-                            label: Text('Amount')
-                          ),
-                        ),
+                        child: _buildAmountField(),
                       ),
                     ],
                   )
                 else  
-                TextField(
-                  controller: _titleController,
-                  decoration: const InputDecoration(
-                    label: Text('Title')
-                  ),
-                ),
+                _buildTitleField(),
                 if (width >= 600)
                   Row(children: [
-                    DropdownButton(
-                      value: _selectedCategory, // default category which is set to lesiure
-                      // makes a dropdown option for every category
-                      items: Category.values.
-                        map(
-                          (category) => DropdownMenuItem(
-                            value: category,
-                            child: Text(
-                              category.name.toUpperCase(),
-                                ),
-                              ),
-                            ).toList(),
-                        // runs when we pick a category
-                        onChanged: (value) {
-                          if (value == null) {
-                            return;
-                          }
-                          // saves the category and updates the screen
-                          setState(() {
-                            _selectedCategory = value;
-                          },
-                        );
-                      },
-                    ),
+                    _buildCategoryDropdown(),
                     const SizedBox(width: 24),
                     Expanded(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            // shows the date, or a message if user hasnt picked one
-                            Text(_selectedDate == null? 'No Date Selected' : formatter.format(_selectedDate!)),
-                            IconButton(
-                              // opens the calendar
-                              onPressed: _presentDatePicker,
-                              icon: const Icon(
-                                Icons.calendar_month,
-                            )
-                          ),
-                        ],
-                      ),
+                        child: _buildDateRow(),
                     )
                   ],
                 )
@@ -215,34 +221,11 @@ class _NewExpensesState extends State<NewExpense> {
                   Row(
                     children: [
                       Expanded(
-                        child: TextField(
-                          controller: _amountController,
-                          // number keyboard
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            // dollar sign in front
-                            prefixText: '\$ ',
-                            label: Text('Amount')
-                          ),
-                        ),
+                        child: _buildAmountField(),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            // shows the date, or a message if user hasnt picked one
-                            Text(_selectedDate == null? 'No Date Selected' : formatter.format(_selectedDate!)),
-                            IconButton(
-                              // opens the calendar
-                              onPressed: _presentDatePicker,
-                              icon: const Icon(
-                                Icons.calendar_month,
-                              )
-                            ),
-                          ],
-                        ),
+                        child: _buildDateRow(),
                       )
                     ],
                   ),
@@ -266,30 +249,7 @@ class _NewExpensesState extends State<NewExpense> {
                   else
                     // category dropdown and the buttons
                     Row(children: [  
-                      DropdownButton(
-                        value: _selectedCategory, // default category which is set to lesiure
-                        // makes a dropdown option for every category
-                        items: Category.values.
-                          map(
-                            (category) => DropdownMenuItem(
-                              value: category,
-                              child: Text(
-                                category.name.toUpperCase(),
-                                  ),
-                                ),
-                              ).toList(),
-                          // runs when we pick a category
-                          onChanged: (value) {
-                            if (value == null) {
-                              return;
-                            }
-                            // saves the category and updates the screen
-                            setState(() {
-                              _selectedCategory = value;
-                            },
-                          );
-                        },
-                      ),
+                      _buildCategoryDropdown(),
                       const Spacer(),
                       // cancel button
                       TextButton(
