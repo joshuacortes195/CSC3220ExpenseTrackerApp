@@ -44,10 +44,10 @@ class _NewExpensesState extends State<NewExpense> {
       lastDate: now,
     );
     // saves the date and updates the screen
+    if (pickedDate == null) return;
     setState(() {
       _selectedDate = pickedDate;
-    },
-    );
+    },);
   }
 
   void _showDialog() {
@@ -138,7 +138,6 @@ class _NewExpensesState extends State<NewExpense> {
                       Expanded(
                         child: TextField(
                           controller: _titleController,
-                          keyboardType: TextInputType.number,
                           decoration: const InputDecoration(
                             label: Text('Title')
                           ),
@@ -162,7 +161,6 @@ class _NewExpensesState extends State<NewExpense> {
                 else  
                 TextField(
                   controller: _titleController,
-                  keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
                     label: Text('Title')
                   ),
@@ -262,7 +260,7 @@ class _NewExpensesState extends State<NewExpense> {
                       ElevatedButton(
                         // checks and saves the expense
                         onPressed: _submitExpenseData,
-                        child: const Text('Save Express'),
+                        child: const Text('Save Expense'),
                       ),
                     ])
                   else
@@ -303,7 +301,7 @@ class _NewExpensesState extends State<NewExpense> {
                       ElevatedButton(
                         // checks and saves the expense
                         onPressed: _submitExpenseData,
-                        child: const Text('Save Express'),
+                        child: const Text('Save Expense'),
                       ),
                     ],
                   )
