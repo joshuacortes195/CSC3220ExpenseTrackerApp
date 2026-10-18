@@ -1,30 +1,38 @@
-// // This is a basic Flutter widget test.
-// //
-// // To perform an interaction with a widget in your test, use the WidgetTester
-// // utility in the flutter_test package. For example, you can send tap and scroll
-// // gestures. You can also use WidgetTester to find child widgets in the widget
-// // tree, read text, and verify that the values of widget properties are correct.
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
 
-// import 'package:flutter/material.dart';
-// import 'package:flutter_test/flutter_test.dart';
+import 'package:expense_tracker_app/expenses.dart';
 
-// import 'package:expense_tracker_app/main.dart';
+void main() {
+  // L4: checks the 7 day switch hides the older expenses
+  testWidgets('7 day toggle filters out older expenses', (WidgetTester tester) async {
+    // wider test screen so the long date text on the cards fits
+    tester.view.physicalSize = const Size(1400, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
 
-// void main() {
-//   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-//     // Build our app and trigger a frame.
-//     await tester.pumpWidget(const MyApp());
+    // loads the main screen with the same card margin our app theme uses
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: ThemeData(
+          cardTheme: const CardThemeData(
+            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          ),
+        ),
+        home: const Expenses(),
+      ),
+    );
 
-//     // Verify that our counter starts at 0.
-//     expect(find.text('0'), findsOneWidget);
-//     expect(find.text('1'), findsNothing);
+    // everything shows before the filter is on
+    expect(find.text('Flutter Course'), findsOneWidget);
+    expect(find.text('Groceries'), findsOneWidget);
 
-//     // Tap the '+' icon and trigger a frame.
-//     await tester.tap(find.byIcon(Icons.add));
-//     await tester.pump();
+    // flips the switch on
+    await tester.tap(find.byType(Switch));
+    await tester.pumpAndSettle();
 
-//     // Verify that our counter has incremented.
-//     expect(find.text('0'), findsNothing);
-//     expect(find.text('1'), findsOneWidget);
-//   });
-// }
+    // older one is gone, today's one is still there
+    expect(find.text('Groceries'), findsNothing);
+    expect(find.text('Flutter Course'), findsOneWidget);
+  });
+}
