@@ -1,8 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:expense_tracker_app/model/expense.dart';
-import 'package:flutter/cupertino.dart';
 
 // the add expense form
 class NewExpense extends StatefulWidget {
@@ -30,6 +27,8 @@ class _NewExpensesState extends State<NewExpense> {
   Category _selectedCategory = Category.leisure;
   // new form wrapper
   final _formKey = GlobalKey<FormState>();
+  // date is trickier since its not a textfield
+  final _dateFieldKey = GlobalKey<FormFieldState<DateTime>>();
 
   // opens the calendar
   void _presentDatePicker() async {
@@ -50,65 +49,23 @@ class _NewExpensesState extends State<NewExpense> {
     setState(() {
       _selectedDate = pickedDate;
     },);
-  }
-
-  void _showDialog() {
-    if (Platform.isIOS) {
-      showCupertinoDialog(
-        context: context, 
-        builder: (ctx) => CupertinoAlertDialog(
-          title: const Text('Invalid input'),
-          content: const Text(
-            'Please make sure a valid title, amount, date and category was entered'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(ctx);
-              },
-              child: const Text('Okay'),
-              )
-            ],
-          ));
-    }else {
-      // shows the error popup
-      showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: const Text('Invalid input'),
-          content: const Text(
-            'Please make sure a valid title, amount, date and category was entered'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(ctx);
-              },
-              child: const Text('Okay'),
-              )
-            ],
-          )
-        );
-    }
+    _dateFieldKey.currentState?.didChange(pickedDate);
   }
 
   // runs when we hit save
   void _submitExpenseData() {
-    final enteredAmount = double.tryParse(_amountController.text); // turns the amount text into a number
-    final amountIsInvalid = enteredAmount == null || enteredAmount <= 0;  // checks for an empty title, bad amount or no date
-    if (_titleController.text.trim().isEmpty || amountIsInvalid || _selectedDate == null) { // amount will cause an error if it's not a number or it's 0 or less
-      _showDialog();
-        // returns here so nothing bad gets saved
+    if (!_formKey.currentState!.validate()) {
       return;
     }
-      // builds the expense and sends it to the main screen if it passes the if checkpoint
-      widget.onAddExpense(Expense(
-        title: _titleController.text,
-        amount: enteredAmount,
-        date: _selectedDate!,
-        category: _selectedCategory,
-        )
-      );
-      Navigator.pop(context);
-    }
+    widget.onAddExpense(Expense(
+      title: _titleController.text,
+      amount: double.parse(_amountController.text),
+      date: _selectedDate!,
+      category: _selectedCategory,
+      )
+    );
+    Navigator.pop(context);
+  }
 
   // cleans up the controllers when the form closes
   @override
@@ -126,8 +83,10 @@ class _NewExpensesState extends State<NewExpense> {
     return TextFormField(
       controller: _titleController,
       decoration: const InputDecoration(label: Text('Title')),
+      // field checks itself only after user types in it
       autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: (value) {
+        // does not allow a title to be blank or just spaces
         if (value == null || value.trim().length < 2) {
           return 'Title needs to be at least 2 characters.';
         }
@@ -142,6 +101,7 @@ class _NewExpensesState extends State<NewExpense> {
   Widget _buildAmountField() {
     return TextFormField(
       controller: _amountController,
+      // allowing for decimal points in amount field
       keyboardType: TextInputType.numberWithOptions(decimal: true),
       decoration: const InputDecoration(
         prefixText: '\$ ',
@@ -149,7 +109,9 @@ class _NewExpensesState extends State<NewExpense> {
       ),
       autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: (value) {
+        // if text isnt a number we get null
         final amount = double.tryParse(value ?? '');
+        // simple statements for cases where amount isnt correctly entered
         if (amount == null) {
           return 'Enter a valid number.';
         }
@@ -162,6 +124,7 @@ class _NewExpensesState extends State<NewExpense> {
   }
 
   // new widget turns category dropdown into a method for reusability
+  // leisure is default so that saved needing a validator
   Widget _buildCategoryDropdown() {
     return DropdownButton(
       value: _selectedCategory, 
@@ -187,19 +150,41 @@ class _NewExpensesState extends State<NewExpense> {
   }
  
   // new widget turns date text and calendar button into method for reusability
+  // had to wrap row in FormField<DateTime>
+  // this was the hardest part since flutter has not date form field we made our own
+  // it simply holds a date and time runs the validator and if its empty shows an error
   Widget _buildDateRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(_selectedDate == null? 'No Date Selected' : formatter.format(_selectedDate!)),
-        IconButton(
-          onPressed: _presentDatePicker,
-          icon: const Icon(
-            Icons.calendar_month,
-          )
-        ),
-      ],
+    return FormField<DateTime>(
+      initialValue: _selectedDate,
+      key: _dateFieldKey,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: (value) => value == null ? 'Please pick a date.' : null,
+      // simply if field has a current it will display what it says
+      builder: (state) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(_selectedDate == null? 'No Date Selected' : formatter.format(_selectedDate!)),
+                IconButton(
+                  onPressed: _presentDatePicker,
+                  icon: const Icon(
+                    Icons.calendar_month,
+                  )
+                ),
+              ],
+            ),
+            if (state.hasError)
+              Text(
+                state.errorText!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+          ],
+        );
+      },
     );
   }
 
