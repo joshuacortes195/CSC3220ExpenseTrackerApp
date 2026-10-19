@@ -19,7 +19,6 @@ void main() {
     runApp(
       MaterialApp(
         darkTheme: ThemeData.dark().copyWith(
-          useMaterial3: true,
           colorScheme: kDarkColorScheme,
           cardTheme: const CardThemeData().copyWith(
             color: kDarkColorScheme.secondaryContainer,
@@ -37,7 +36,6 @@ void main() {
         ),
         // turns on material 3 styling
         theme: ThemeData().copyWith(
-          useMaterial3: true,
           colorScheme: kColorScheme,
           appBarTheme: const AppBarTheme().copyWith(
             backgroundColor: kColorScheme.onPrimaryContainer,
